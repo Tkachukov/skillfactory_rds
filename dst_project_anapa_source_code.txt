@@ -1,0 +1,239 @@
+Задание 4.1 :
+
+SELECT
+ airp.city,
+ COUNT(airp.city)
+FROM 
+ dst_project.airports AS airp 
+GROUP BY 
+ airp.city
+ORDER BY 
+ COUNT(airp.city) DESC
+
+Задание 4.2 :
+
+Вопрос 1:
+
+SELECT
+ COUNT(DISTINCT f.status)
+FROM 
+ dst_project.flights AS f  
+
+Вопрос 2:
+
+SELECT
+ COUNT(f.flight_id)
+FROM 
+ dst_project.flights AS f
+WHERE 
+ f.status = 'Departed'
+
+Вопрос 3:
+
+SELECT
+ s.aircraft_code,
+ COUNT(s.seat_no)
+FROM 
+ dst_project.seats AS s 
+JOIN 
+ dst_project.aircrafts AS pl 
+ON 
+ pl.aircraft_code = s.aircraft_code
+WHERE 
+ pl.model = 'Boeing 777-300'
+GROUP BY 
+ s.aircraft_code
+
+Вопрос 4:
+
+SELECT
+ COUNT(f.flight_id)
+FROM 
+ dst_project.flights AS f
+WHERE 
+ f.status = 'Arrived' AND f.actual_arrival BETWEEN '2017-04-01 00:00:00' AND '2017-09-01 00:00:00'
+
+Задание 4.3 
+
+Вопрос 1.
+
+SELECT
+ COUNT(f.flight_id)
+FROM 
+ dst_project.flights AS f
+WHERE 
+ f.status = 'Cancelled'
+
+Вопрос 2.
+
+SELECT
+ pl.model,
+ COUNT(pl.aircraft_code)
+FROM 
+ dst_project.aircrafts AS pl 
+GROUP BY 
+ pl.model
+ORDER BY 
+ pl.model
+
+Вопрос 3.
+
+Вопрос 4.
+
+Задание 4.5
+
+Вопрос 1.
+
+SELECT
+ s.fare_conditions,
+ COUNT(s.seat_no)
+FROM 
+ dst_project.seats AS s 
+JOIN 
+ dst_project.aircrafts AS pl 
+ON 
+ pl.aircraft_code = s.aircraft_code
+WHERE 
+ pl.model = 'Sukhoi Superjet-100'
+GROUP BY 
+ s.fare_conditions 
+
+Вопрос 2.
+
+SELECT
+ b.total_amount
+FROM 
+ dst_project.bookings AS b 
+ORDER BY 
+ b.total_amount 
+LIMIT 1
+
+Вопрос 3.
+
+SELECT 
+ pass.seat_no 
+FROM 
+ dst_project.boarding_passes AS pass 
+JOIN 
+ dst_project.tickets AS t 
+ON 
+ pass.ticket_no = t.ticket_no 
+WHERE 
+ t.passenger_id = '4313 788533' 
+
+Задание 5.
+
+Вопрос 1. 
+
+SELECT 
+      COUNT(f.flight_id)
+FROM 
+      dst_project.flights AS f 
+WHERE 
+      f.arrival_airport = 'AAQ' AND f.actual_arrival BETWEEN '2017-01-01 00:00:00' AND '2017-12-31 23:59:59'
+
+Вопрос 2.
+
+SELECT 
+      COUNT(f.flight_id)
+FROM 
+      dst_project.flights AS f 
+WHERE 
+      f.departure_airport = 'AAQ' AND f.actual_departure BETWEEN '2017-01-01 00:00:00' AND '2017-02-28 23:59:59'
+
+Вопрос 3. 
+
+SELECT 
+      COUNT(f.flight_id)
+FROM 
+      dst_project.flights AS f 
+WHERE 
+      f.departure_airport = 'AAQ' AND f.status = 'Cancelled'
+
+Вопрос 4.
+
+SELECT 
+      COUNT(f.flight_id)
+FROM 
+      dst_project.flights AS f
+JOIN 
+     dst_project.airports AS airp  
+  ON 
+     airp.airport_code = f.arrival_airport
+WHERE 
+      f.departure_airport = 'AAQ' AND airp.city NOT IN ('Moscow') 
+
+Вопрос 5. 
+
+SELECT 
+         pl.model,
+         COUNT(s.seat_no)
+  FROM 
+         dst_project.aircrafts AS pl
+  JOIN 
+         dst_project.seats AS s  
+    ON 
+         pl.aircraft_code = s.aircraft_code
+  JOIN 
+        dst_project.flights AS f 
+    ON 
+        f.aircraft_code = pl.aircraft_code 
+ WHERE 
+        f.departure_airport = 'AAQ'
+GROUP BY 
+         pl.model
+
+
+
+Главное задание: 
+
+SELECT 
+       f.flight_id, 
+       f.departure_airport, 
+       f.arrival_airport, 
+       f.scheduled_departure::date AS "flight_date",
+       DATE_PART('hour', f.scheduled_arrival - f.scheduled_departure) + (DATE_PART('minute', f.scheduled_arrival - f.scheduled_departure)/60) AS duration_hours, 
+       (ACOS(SIN(RADIANS(a.latitude))*SIN(RADIANS(44.53)) + COS(RADIANS(a.latitude))*COS(RADIANS(44.53))*COS(RADIANS(a.longitude)-RADIANS(37.19)))*6371) AS distance, 
+       pl.model AS plane_model,
+       COUNT(t.ticket_no) AS tickets_sold,
+       SUM(b.total_amount) AS revenue
+  FROM 
+       dst_project.flights AS f
+  JOIN 
+       dst_project.aircrafts AS pl 
+    ON 
+       f.aircraft_code = pl.aircraft_code
+  JOIN 
+       dst_project.airports AS a  
+    ON 
+       f.arrival_airport = a.airport_code
+  JOIN 
+       dst_project.ticket_flights AS tf 
+    ON 
+       f.flight_id = tf.flight_id
+  JOIN 
+       dst_project.tickets AS t 
+    ON 
+       tf.ticket_no = t.ticket_no
+  JOIN 
+       dst_project.bookings AS b 
+    ON 
+       t.book_ref = b.book_ref
+ WHERE 
+       f.departure_airport = 'AAQ'
+ GROUP 
+       BY 
+          f.flight_id,
+          pl.model,
+          distance
+ ORDER 
+       BY 
+          revenue
+
+
+
+
+
+
+
+
